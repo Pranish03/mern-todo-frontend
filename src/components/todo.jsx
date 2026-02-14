@@ -4,11 +4,11 @@ import { FiTrash2 } from "react-icons/fi";
 export const Todo = () => {
   const [isComplete, setIsComplete] = useState(false);
 
-  const onChange = () => {
+  const handleComplete = () => {
     setIsComplete((prev) => !prev);
   };
 
-  const onClick = () => {
+  const handleDelete = () => {
     console.log("Delete");
   };
 
@@ -19,7 +19,7 @@ export const Todo = () => {
           className="cursor-pointer size-4 accent-black"
           type="checkbox"
           checked={isComplete}
-          onChange={onChange}
+          onChange={handleComplete}
         />
         <span className={`${isComplete ? "line-through" : ""}`}>
           Finish Mern course
@@ -27,7 +27,7 @@ export const Todo = () => {
       </div>
       <button
         className="text-black hover:text-red-600 cursor-pointer"
-        onClick={onClick}
+        onClick={handleDelete}
       >
         <FiTrash2 size={22} />
       </button>
