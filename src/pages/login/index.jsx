@@ -27,14 +27,19 @@ export const Login = () => {
 
   const onSubmit = async (data) => {
     try {
+      setServerError("");
+
       const res = await axios.post("/auth/login", data);
       localStorage.setItem("token", res.data?.data?.token);
 
-      navigate("/");
       reset();
+      navigate("/");
     } catch (error) {
-      console.log(error);
-      setServerError("Invalid credentials");
+      if (error.response?.status === 401) {
+        setServerError("Invalid credentials");
+      } else {
+        setServerError("Something went wrong. Try again");
+      }
     }
   };
 
@@ -92,7 +97,7 @@ export const Login = () => {
 
           {serverError && <p className="text-red-600 mt-1">{serverError}</p>}
 
-          <Button type="submit" className="w-full mt-2">
+          <Button type="submit" className="w-full mt-1">
             Login
           </Button>
         </form>

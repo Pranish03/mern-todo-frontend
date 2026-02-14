@@ -1,18 +1,47 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Link, useNavigate } from "react-router-dom";
+import { axios } from "../../lib/axios";
+import { signupSchema } from "../../schema/authSchema";
 import { Button } from "../../components/button";
 import { Input } from "../../components/input";
 
 export const Signup = () => {
-  const [formValue, setFormValue] = useState({
-    name: "",
-    email: "",
-    password: "",
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+    },
+    resolver: zodResolver(signupSchema),
   });
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log(formValue);
+  const [serverError, setServerError] = useState("");
+
+  const navigate = useNavigate();
+
+  const onSubmit = async (data) => {
+    try {
+      setServerError("");
+
+      const res = await axios.post("/auth/signup", data);
+      localStorage.setItem("token", res.data?.data?.token);
+
+      reset();
+      navigate("/");
+    } catch (error) {
+      if (error.response?.status === 409) {
+        setServerError("Email is already taken");
+      } else {
+        setServerError("Something went wrong. Try again");
+      }
+    }
   };
 
   return (
@@ -23,7 +52,10 @@ export const Signup = () => {
           Create a new account
         </h2>
 
-        <form className="space-y-4 text-gray-800" onSubmit={handleSubmit}>
+        <form
+          className="space-y-4 text-gray-800"
+          onSubmit={handleSubmit(onSubmit)}
+        >
           <div>
             <label
               htmlFor="name"
@@ -36,16 +68,12 @@ export const Signup = () => {
               type="text"
               id="name"
               placeholder="Enter a name"
-              value={formValue.name}
-              onChange={(e) =>
-                setFormValue((prev) => {
-                  return {
-                    ...prev,
-                    name: e.target.value,
-                  };
-                })
-              }
+              {...register("name")}
+              errors={errors.name}
             />
+            {errors.name && (
+              <p className="text-red-600 mt-1">{errors.name.message}</p>
+            )}
           </div>
 
           <div>
@@ -60,16 +88,12 @@ export const Signup = () => {
               type="email"
               id="email"
               placeholder="Enter an email"
-              value={formValue.email}
-              onChange={(e) =>
-                setFormValue((prev) => {
-                  return {
-                    ...prev,
-                    email: e.target.value,
-                  };
-                })
-              }
+              {...register("email")}
+              errors={errors.email}
             />
+            {errors.email && (
+              <p className="text-red-600 mt-1">{errors.email.message}</p>
+            )}
           </div>
 
           <div>
@@ -84,19 +108,17 @@ export const Signup = () => {
               type="password"
               id="password"
               placeholder="Enter a password"
-              value={formValue.password}
-              onChange={(e) =>
-                setFormValue((prev) => {
-                  return {
-                    ...prev,
-                    password: e.target.value,
-                  };
-                })
-              }
+              {...register("password")}
+              errors={errors.password}
             />
+            {errors.password && (
+              <p className="text-red-600 mt-1">{errors.password.message}</p>
+            )}
           </div>
 
-          <Button type="submit" className="w-full mt-2">
+          {serverError && <p className="text-red-600 mt-1">{serverError}</p>}
+
+          <Button type="submit" className="w-full mt-1">
             Signup
           </Button>
         </form>
