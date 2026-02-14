@@ -1,17 +1,41 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Link, useNavigate } from "react-router-dom";
+import { loginSchema } from "../../schema/authSchema";
+import { axios } from "../../lib/axios";
 import { Button } from "../../components/button";
 import { Input } from "../../components/input";
 
 export const Login = () => {
-  const [formValue, setFormValue] = useState({
-    email: "",
-    password: "",
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+    resolver: zodResolver(loginSchema),
   });
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log(formValue);
+  const [serverError, setServerError] = useState("");
+
+  const navigate = useNavigate();
+
+  const onSubmit = async (data) => {
+    try {
+      const res = await axios.post("/auth/login", data);
+      localStorage.setItem("token", res.data?.data?.token);
+
+      navigate("/");
+      reset();
+    } catch (error) {
+      console.log(error);
+      setServerError("Invalid credentials");
+    }
   };
 
   return (
@@ -22,7 +46,10 @@ export const Login = () => {
           Get access to your account
         </h2>
 
-        <form className="space-y-4 text-gray-800" onSubmit={handleSubmit}>
+        <form
+          className="space-y-4 text-gray-800"
+          onSubmit={handleSubmit(onSubmit)}
+        >
           <div>
             <label
               htmlFor="email"
@@ -35,16 +62,12 @@ export const Login = () => {
               type="email"
               id="email"
               placeholder="Enter your email"
-              value={formValue.email}
-              onChange={(e) =>
-                setFormValue((prev) => {
-                  return {
-                    ...prev,
-                    email: e.target.value,
-                  };
-                })
-              }
+              {...register("email")}
+              errors={errors.email}
             />
+            {errors.email && (
+              <p className="text-red-600 mt-1">{errors.email.message}</p>
+            )}
           </div>
 
           <div>
@@ -59,17 +82,15 @@ export const Login = () => {
               type="password"
               id="password"
               placeholder="Enter your password"
-              value={formValue.password}
-              onChange={(e) =>
-                setFormValue((prev) => {
-                  return {
-                    ...prev,
-                    password: e.target.value,
-                  };
-                })
-              }
+              {...register("password")}
+              errors={errors.password}
             />
+            {errors.password && (
+              <p className="text-red-600 mt-1">{errors.password.message}</p>
+            )}
           </div>
+
+          {serverError && <p className="text-red-600 mt-1">{serverError}</p>}
 
           <Button type="submit" className="w-full mt-2">
             Login
