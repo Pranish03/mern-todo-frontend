@@ -6,6 +6,7 @@ import { loginSchema } from "../../schema/authSchema";
 import { axios } from "../../lib/axios";
 import { Button } from "../../components/button";
 import { Input } from "../../components/input";
+import { toast } from "sonner";
 
 export const Login = () => {
   const {
@@ -33,12 +34,13 @@ export const Login = () => {
       localStorage.setItem("token", res.data?.data?.token);
 
       reset();
+      toast.success("Welcome to todo app");
       navigate("/");
     } catch (error) {
       if (error.response?.status === 401) {
         setServerError("Invalid credentials");
       } else {
-        setServerError("Something went wrong. Try again");
+        toast.error("Something went wrong. Try again");
       }
     }
   };

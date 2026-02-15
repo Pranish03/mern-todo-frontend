@@ -1,4 +1,5 @@
 import { FiPlus, FiLogOut, FiTrash2 } from "react-icons/fi";
+import { toast } from "sonner";
 import { useFetch } from "../../hooks/useFetch";
 import { Button } from "../../components/button";
 import { Input } from "../../components/input";
@@ -20,10 +21,13 @@ export const Home = () => {
   const onSubmit = async (data) => {
     try {
       await axios.post("/todos", data);
+
+      toast.success("Todo added");
+
       refetch();
       reset();
     } catch (error) {
-      console.log(error);
+      toast.error(error.response?.data?.message || "Failed to create todo");
     }
   };
 
@@ -32,25 +36,33 @@ export const Home = () => {
       await axios.patch(`/todos/${todo?._id}`, {
         isComplete: !todo?.isComplete,
       });
+
+      toast.success("Todo updated");
+
       refetch();
     } catch (error) {
-      console.log(error);
+      toast.error(error.response?.data?.message || "Failed to update todo");
     }
   };
 
   const handleDelete = async (id) => {
     try {
       await axios.delete(`/todos/${id}`);
+
+      toast.success("Todo deleted");
+
       refetch();
-    } catch (error) {
-      console.log(error);
+    } catch {
+      toast.error("Failed to delete todo");
     }
   };
 
   const handleLogout = async () => {
     localStorage.removeItem("token");
-
     delete axios.defaults.headers.common["Authorization"];
+
+    toast.success("Logged out successfully");
+
     navigate("/login");
   };
 
