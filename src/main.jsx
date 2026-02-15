@@ -6,6 +6,7 @@ import { Home } from "./pages/home";
 import { Login } from "./pages/login";
 import { Signup } from "./pages/signup";
 import { CheckAuth } from "./components/check-auth";
+import { GuestOnly } from "./components/guest-only";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -19,8 +20,24 @@ createRoot(document.getElementById("root")).render(
             </CheckAuth>
           }
         />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
+
+        <Route
+          path="/login"
+          element={
+            <GuestOnly>
+              <Login />
+            </GuestOnly>
+          }
+        />
+
+        <Route
+          path="/signup"
+          element={
+            <GuestOnly>
+              <Signup />
+            </GuestOnly>
+          }
+        />
       </Routes>
     </BrowserRouter>
   </StrictMode>,

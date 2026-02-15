@@ -3,17 +3,15 @@ import { useNavigate } from "react-router-dom";
 import { useFetch } from "../hooks/useFetch";
 
 export const CheckAuth = ({ children }) => {
-  const { data, isLoading } = useFetch("/auth/me");
+  const { isLoading, error } = useFetch("/auth/me");
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!isLoading && !data?.data?.user) {
+    if (error === 401) {
       navigate("/login");
     }
-  }, [data, isLoading, navigate]);
-
-  console.log(data);
+  }, [error, navigate]);
 
   if (isLoading) {
     return <p>Loading...</p>;

@@ -51,7 +51,6 @@ export const Home = () => {
     localStorage.removeItem("token");
 
     delete axios.defaults.headers.common["Authorization"];
-    await refetch();
     navigate("/login");
   };
 

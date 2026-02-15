@@ -13,7 +13,7 @@ export const useFetch = (endpoint) => {
       const res = await axios.get(endpoint);
       setData(res.data);
     } catch (error) {
-      setError(error.message);
+      setError(error.response?.status || 500);
       setData(null);
     } finally {
       setIsLoading(false);
