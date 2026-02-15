@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, useNavigate } from "react-router-dom";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 import { loginSchema } from "../../schema/auth-schema";
 import { axios } from "../../lib/axios";
 import { Button } from "../../components/button";
@@ -9,6 +10,8 @@ import { Input } from "../../components/input";
 import { toast } from "sonner";
 
 export const Login = () => {
+  const [showPassword, setShowPassword] = useState(false);
+
   const {
     register,
     handleSubmit,
@@ -84,14 +87,24 @@ export const Login = () => {
             >
               Password*
             </label>
-            <Input
-              className="w-full"
-              type="password"
-              id="password"
-              placeholder="Enter your password"
-              {...register("password")}
-              errors={errors.password}
-            />
+            <div className="relative flex items-center">
+              <Input
+                className="w-full"
+                type={showPassword ? "text" : "password"}
+                id="password"
+                placeholder="Enter your password"
+                {...register("password")}
+                errors={errors.password}
+              />
+
+              <button
+                type="button"
+                className="absolute right-3 cursor-pointer text-gray-400 hover:text-black"
+                onClick={() => setShowPassword((prev) => !prev)}
+              >
+                {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+              </button>
+            </div>
             {errors.password && (
               <p className="text-red-600 mt-1">{errors.password.message}</p>
             )}
