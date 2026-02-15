@@ -1,73 +1,61 @@
+import { useEffect } from "react";
 import { FiPlus, FiLogOut, FiTrash2 } from "react-icons/fi";
-import { toast } from "sonner";
-import { useFetch } from "../../hooks/useFetch";
-import { Button } from "../../components/button";
-import { Input } from "../../components/input";
-import { axios } from "../../lib/axios";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
+
+import { Button } from "../../components/button";
+import { Input } from "../../components/input";
+import { useFetch } from "../../hooks/useFetch";
 import { useAuth } from "../../context/auth-context";
+import { logout } from "../../services/auth-service";
+import {
+  createTodo,
+  deleteTodo,
+  toggleTodo,
+} from "../../services/todo-service";
 
 export const Home = () => {
-  const navigate = useNavigate();
   const { data, isLoading, error, refetch } = useFetch("/todos");
-  const user = useAuth();
+
+  useEffect(() => {
+    if (error) {
+      toast.error(error || "Failed to fetch todos");
+    }
+  }, [error]);
+
+  const navigate = useNavigate();
+
   const { register, handleSubmit, reset } = useForm({
     defaultValues: {
       label: "",
     },
   });
 
-  const onSubmit = async (data) => {
-    try {
-      await axios.post("/todos", data);
+  const user = useAuth();
 
-      toast.success("Todo added");
-
-      refetch();
-      reset();
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to create todo");
-    }
+  const handleAdd = async (data) => {
+    await createTodo(data);
+    refetch();
+    reset();
   };
 
   const handleComplete = async (todo) => {
-    try {
-      await axios.patch(`/todos/${todo?._id}`, {
-        isComplete: !todo?.isComplete,
-      });
-
-      toast.success("Todo updated");
-
-      refetch();
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to update todo");
-    }
+    await toggleTodo(todo);
+    refetch();
   };
 
   const handleDelete = async (id) => {
-    try {
-      await axios.delete(`/todos/${id}`);
-
-      toast.success("Todo deleted");
-
-      refetch();
-    } catch {
-      toast.error("Failed to delete todo");
-    }
+    await deleteTodo(id);
+    refetch();
   };
 
   const handleLogout = async () => {
-    localStorage.removeItem("token");
-    delete axios.defaults.headers.common["Authorization"];
-
-    toast.success("Logged out successfully");
-
-    navigate("/login");
+    logout(navigate);
   };
 
-  if (isLoading) return <p>Loading...</p>;
-  if (error) return <p>{error || "Error occurred"}</p>;
   return (
     <main className="w-[800px] mx-auto">
       <h1 className="text-center text-4xl font-bold mt-20 mb-10">
@@ -75,7 +63,7 @@ export const Home = () => {
       </h1>
       <form
         className="flex gap-4 items-center mb-10"
-        onSubmit={handleSubmit(onSubmit)}
+        onSubmit={handleSubmit(handleAdd)}
       >
         <Input
           type="text"
@@ -89,7 +77,11 @@ export const Home = () => {
         </Button>
       </form>
 
-      {data?.data?.length === 0 ? (
+      {isLoading ? (
+        <div className="space-y-3">
+          <Skeleton height={28} count={5} />
+        </div>
+      ) : data?.data?.length === 0 ? (
         <div className="pt-20">
           <h2 className="text-center text-2xl font-medium">
             You don't have any todos
