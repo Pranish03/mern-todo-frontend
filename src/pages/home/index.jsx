@@ -4,7 +4,7 @@ import { Button } from "../../components/button";
 import { Input } from "../../components/input";
 import { axios } from "../../lib/axios";
 import { useForm } from "react-hook-form";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export const Home = () => {
   const { register, handleSubmit, reset } = useForm({
@@ -15,18 +15,7 @@ export const Home = () => {
 
   const navigate = useNavigate();
 
-  const {
-    data: userData,
-    isLoading: isUserLoading,
-    error: userError,
-  } = useFetch("/auth/me");
-
-  const {
-    data: todoData,
-    isLoading: isTodoLoading,
-    error: todoError,
-    refetch,
-  } = useFetch("/todos");
+  const { data, isLoading, error, refetch } = useFetch("/todos");
 
   const onSubmit = async (data) => {
     try {
@@ -66,16 +55,12 @@ export const Home = () => {
     navigate("/login");
   };
 
-  if (isUserLoading || isTodoLoading) {
+  if (isLoading) {
     return <p>Loading...</p>;
   }
 
-  // if (!userData?.data?.user) {
-  //   return <Navigate to="/login" replace={true} />;
-  // }
-
-  if (userError || todoError) {
-    return <p>{userError || todoError || "Error occurred"}</p>;
+  if (error) {
+    return <p>{error || "Error occurred"}</p>;
   }
 
   return (
@@ -99,7 +84,7 @@ export const Home = () => {
         </Button>
       </form>
 
-      {todoData?.data?.length === 0 ? (
+      {data?.data?.length === 0 ? (
         <div className="pt-20">
           <h2 className="text-center text-2xl font-medium">
             You don't have any todos
@@ -107,7 +92,7 @@ export const Home = () => {
         </div>
       ) : (
         <div className="space-y-3">
-          {todoData?.data?.map((todo) => (
+          {data?.data?.map((todo) => (
             <div key={todo._id} className="flex items-center justify-between">
               <div className="text-lg flex items-center gap-4">
                 <input
