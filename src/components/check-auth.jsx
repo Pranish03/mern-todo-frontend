@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useFetch } from "../hooks/useFetch";
 import { AuthContext } from "../context/auth-context";
+import { PageLoader } from "./page-loader";
 
 export const CheckAuth = ({ children }) => {
   const { data, isLoading, error } = useFetch("/auth/me");
@@ -15,7 +16,7 @@ export const CheckAuth = ({ children }) => {
   }, [error, navigate]);
 
   if (isLoading) {
-    return <p>Loading...</p>;
+    return <PageLoader />;
   }
 
   return (

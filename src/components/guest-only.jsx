@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useFetch } from "../hooks/useFetch";
 import { useNavigate } from "react-router-dom";
+import { PageLoader } from "./page-loader";
 
 export const GuestOnly = ({ children }) => {
   const { data, isLoading } = useFetch("/auth/me");
@@ -14,7 +15,7 @@ export const GuestOnly = ({ children }) => {
   }, [data, isLoading, navigate]);
 
   if (isLoading) {
-    return <p>Loading...</p>;
+    return <PageLoader />;
   }
 
   return children;
