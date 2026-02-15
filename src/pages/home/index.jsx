@@ -5,17 +5,17 @@ import { Input } from "../../components/input";
 import { axios } from "../../lib/axios";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/auth-context";
 
 export const Home = () => {
+  const navigate = useNavigate();
+  const { data, isLoading, error, refetch } = useFetch("/todos");
+  const user = useAuth();
   const { register, handleSubmit, reset } = useForm({
     defaultValues: {
       label: "",
     },
   });
-
-  const navigate = useNavigate();
-
-  const { data, isLoading, error, refetch } = useFetch("/todos");
 
   const onSubmit = async (data) => {
     try {
@@ -54,18 +54,12 @@ export const Home = () => {
     navigate("/login");
   };
 
-  if (isLoading) {
-    return <p>Loading...</p>;
-  }
-
-  if (error) {
-    return <p>{error || "Error occurred"}</p>;
-  }
-
+  if (isLoading) return <p>Loading...</p>;
+  if (error) return <p>{error || "Error occurred"}</p>;
   return (
     <main className="w-[800px] mx-auto">
       <h1 className="text-center text-4xl font-bold mt-20 mb-10">
-        Hello, Pranish!
+        Hello, {user?.name}!
       </h1>
       <form
         className="flex gap-4 items-center mb-10"

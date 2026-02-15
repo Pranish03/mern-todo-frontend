@@ -1,9 +1,10 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useFetch } from "../hooks/useFetch";
+import { AuthContext } from "../context/auth-context";
 
 export const CheckAuth = ({ children }) => {
-  const { isLoading, error } = useFetch("/auth/me");
+  const { data, isLoading, error } = useFetch("/auth/me");
 
   const navigate = useNavigate();
 
@@ -17,5 +18,9 @@ export const CheckAuth = ({ children }) => {
     return <p>Loading...</p>;
   }
 
-  return children;
+  return (
+    <AuthContext.Provider value={data?.data?.user}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
